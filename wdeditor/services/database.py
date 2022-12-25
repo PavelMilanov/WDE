@@ -1,12 +1,12 @@
 from typing import List
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from schemas.postgres import *
 from models import models
 
 class PostgresApi:
-    
-        
+
+
     def __init__(self, db_url: str):
         self.db_url = db_url
         self.engine = create_engine(self.db_url, echo=True, future=True)
@@ -29,20 +29,52 @@ class PostgresApi:
                 session.rollback()
 
     async def get_templates(self) -> List[Template]:
-        with Session(self.engine) as session:
-            req = select(Template)
-            data = session.execute(req).scalars().all()
-        return data
-    
-    async def get_template(self, id: int) -> models.Template:
-        with Session(self.engine) as session:
-            req = select(Template).where(Template.id == id)
-            data = session.execute(req).scalars().first()
-        return models.Template(
-            id=data.id,
-            filename=data.name,
-            url=data.url
-        )
+        """Возвращает список всех шаблонов.
 
+        Returns:
+            List[Template]: список моделей Template.
+        """        
+        with Session(self.engine) as session:
+            object = session.query(Template).all()
+        return object
+
+    async def get_template(self, id: int) -> models.Template:
+        """Возврашает шаблон.
+
+        Args:
+            id (int): id шаблона.
+
+        Returns:
+            models.Template: модель Template.
+        """        
+        with Session(self.engine) as session:
+            object = session.query(Template).where(Template.id == id).first()
+            return models.Template(
+                id=object.id,
+                filename=object.name,
+                url=object.url
+            )
+
+    async def delete_template(self, id: int) -> models.Template:
+        """Удалеят шаблон.
+
+        Args:
+            id (int): id шаблона.
+
+        Returns:
+            models.Template: _description_
+        """        
+        with Session(self.engine) as session:
+            object = session.query(Template).where(Template.id == id).first()
+            session.delete(object)
+            try:
+                session.commit()
+                return models.Template(
+                    id=object.id,
+                    filename=object.name,
+                    url=object.url
+                )
+            except Exception:
+                session.rollback()
 
 db = PostgresApi('postgresql://postgres:admin@localhost:5432/postgres')

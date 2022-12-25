@@ -19,3 +19,10 @@ class FileEditor:
     async def get_context_file(file_path: str) -> Set[str]:
         doc = DocxTemplate(file_path)
         return doc.get_undeclared_template_variables()
+
+    @staticmethod
+    async def delete_file(file_path: str) -> Exception:
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            return e

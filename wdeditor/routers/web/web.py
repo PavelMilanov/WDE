@@ -33,7 +33,7 @@ async def download_template(id: int)-> FileResponse:
     """Выгрузка файла пользователю.
 
     Args:
-        id (int): id schemas.postgres.Template.
+        id (int): id шаблона.
 
     Returns:
         FileResponse: fastapi.responses.FileResponce.
@@ -50,7 +50,7 @@ async def get_templates() -> List[Template]:
     """Возвращает все шаблоны.
 
     Returns:
-        List[Template]: schemas.postgres.Template.
+        List[Template]: модели шаблона.
     """
     return await db.get_templates()
 
@@ -59,10 +59,10 @@ async def get_template(id: int) -> TemplateContext:
     """Возвращает шаблон с тегами, которые изменяются.
 
     Args:
-        id (int): id schemas.postgres.Template.
+        id (int): id шаблона.
 
     Returns:
-        TemplateContext: models.model.TemplateContext.
+        TemplateContext: модель шаблона с тегами.
     """
     model = await db.get_template(id)
     context = await FileEditor.get_context_file(model.url)
@@ -72,3 +72,17 @@ async def get_template(id: int) -> TemplateContext:
         url=model.url,
         context=context
     )
+
+@router.delete('/{id}')
+async def delete_template(id: int) -> int:
+    """Удаляет шаблон.
+
+    Args:
+        id (int): id шаблона.
+
+    Returns:
+        int: успешно - if шаблона, не успешно - 403 статус.
+    """    
+    model = await db.delete_template(id)
+    err = await FileEditor.delete_file(model.url)
+    return model.id if not err else status.HTTP_403_FORBIDDEN
