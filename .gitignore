@@ -1,0 +1,5 @@
+.venv
+forms/
+__pycache__
+poetry.lock
+.DS_Store
