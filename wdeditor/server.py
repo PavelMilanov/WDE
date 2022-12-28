@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from routers.web import web
+from routers import templates, documents, auth
+from services.fileeditor import FileEditor
 
 
 app = FastAPI(
@@ -9,7 +10,11 @@ app = FastAPI(
     version='0.1.0',
     prefix='/api/'
 )
-app.include_router(web.router)
+
+app.include_router(auth.router)
+app.include_router(templates.router)
+app.include_router(documents.router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -17,3 +22,9 @@ app.add_middleware(
     allow_methods=['GET', 'POST', 'DELETE'],
     allow_headers=['*'],
 )
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    response = await call_next(request)
+    # 
+    return response

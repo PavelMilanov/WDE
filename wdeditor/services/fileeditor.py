@@ -1,7 +1,9 @@
 import shutil, os
 from typing import BinaryIO, Set
 from docxtpl import DocxTemplate
-from . import template_path
+from . import template_path, doc_path
+from models import models
+from datetime import datetime
 
 
 class FileEditor:
@@ -26,3 +28,12 @@ class FileEditor:
             os.remove(file_path)
         except Exception as e:
             return e
+    
+    @staticmethod
+    async def generate_document_by_template(data: models.CreateDocument ) -> str:
+        doc = DocxTemplate(data.url)
+        context = data.context
+        filename = datetime.now().strftime("%d.%m.%Y %H:%M")
+        doc.render(context)
+        doc.save(f'{doc_path}/{filename}.docx')
+        return f'{doc_path}/{filename}.docx'

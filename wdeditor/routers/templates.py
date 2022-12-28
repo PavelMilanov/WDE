@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, UploadFile, status
+from fastapi import APIRouter, UploadFile, status, Path
 from fastapi.responses import FileResponse
 from services.fileeditor import FileEditor
 from services.database import db
@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.post("/upload/")
+@router.post("/upload")
 async def upload_template_file(file: UploadFile) -> status:
     """Загрузка файла на сервер.
 
@@ -29,7 +29,7 @@ async def upload_template_file(file: UploadFile) -> status:
     return status.HTTP_402_PAYMENT_REQUIRED
     
 @router.post('/download/{id}')
-async def download_template(id: int)-> FileResponse:
+async def download_template(id: int = Path(default=1, alias='Id Template', description='Id Template', example='/download/1'))-> FileResponse:
     """Выгрузка файла пользователю.
 
     Args:
@@ -55,7 +55,7 @@ async def get_templates() -> List[Template]:
     return await db.get_templates()
 
 @router.get('/{id}')
-async def get_template(id: int) -> TemplateContext:
+async def get_template(id: int = Path(default=1, description='Id Template', example='1')) -> TemplateContext:
     """Возвращает шаблон с тегами, которые изменяются.
 
     Args:
@@ -74,7 +74,7 @@ async def get_template(id: int) -> TemplateContext:
     )
 
 @router.delete('/{id}')
-async def delete_template(id: int) -> int:
+async def delete_template(id: int = Path(default=1, alias='Id Template', description='Id Template', example='/delete/1')) -> int:
     """Удаляет шаблон.
 
     Args:
