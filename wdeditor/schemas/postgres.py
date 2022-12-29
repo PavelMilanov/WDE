@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 
+ 
 Base = declarative_base()
 
 
@@ -14,7 +15,27 @@ class Template(Base):
 
 class Registration(Base):
     __tablename__ = 'registrations'
-    
-    user_id = Column(Integer, primary_key=True)
+
+    id = Column(Integer, primary_key=True)
     login = Column(String(20), unique=True, nullable=False)
     password = Column(String(255), unique=True, nullable=False)
+    user = relationship('User',
+        back_populates='registration',
+        cascade='all,delete',
+        passive_deletes=True
+        )
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    user_id = Column(Integer, ForeignKey('registrations.id', ondelete='CASCADE'), primary_key=True)
+    name = Column(String(20))
+    second_name = Column(String(20))
+    surname = Column(String(20))
+    registration = relationship(
+        'Registration',
+        back_populates='user'
+        )
+
+

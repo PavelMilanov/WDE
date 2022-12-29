@@ -16,3 +16,8 @@ class CreateDocument(BaseModel):
     id: int = Field(default=1, description='Id Template.')
     url: str = Field(default='forms/template.docx', description='Path to the template file.')
     context: Dict[str, str] = Field(description="Context to the template file.")
+
+
+class RegistrationUser(BaseModel):
+    login: str = Field(default='login', description='User login name.')
+    password: str = Field(default='password', description='user password.')

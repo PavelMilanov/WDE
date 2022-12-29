@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import create_engine, and_
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from schemas.postgres import *
 from models import models
@@ -12,12 +12,15 @@ class PostgresApi:
         self.db_url = db_url
         self.engine = create_engine(self.db_url, echo=True, future=True)
 
-    async def insert_template(self, filename: str, url: str):
+    async def insert_template(self, filename: str, url: str) -> bool | Exception:
         """Создает запись в таблице templates.
 
         Args:
             filename (str): навзвание файла.
             url (str): относительный url файла.
+            
+        Returns:
+            bool | Exception: успешно | неуспешно.
         """        
         with Session(self.engine) as session:
             new_template = Template()
@@ -26,8 +29,10 @@ class PostgresApi:
             session.add(new_template)
             try:
                 session.commit()
-            except Exception:
+                return True
+            except Exception as e:
                 session.rollback()
+                return e
 
     async def get_templates(self) -> List[Template]:
         """Возвращает список всех шаблонов.
@@ -56,14 +61,14 @@ class PostgresApi:
                 url=object.url
             )
 
-    async def delete_template(self, id: int) -> models.Template:
+    async def delete_template(self, id: int) -> models.Template | Exception:
         """Удалеят шаблон.
 
         Args:
             id (int): id шаблона.
 
         Returns:
-            models.Template: _description_
+            models.Template | Exception: успешно | неуспешно.
         """        
         with Session(self.engine) as session:
             object = session.query(Template).where(Template.id == id).first()
@@ -75,10 +80,20 @@ class PostgresApi:
                     filename=object.name,
                     url=object.url
                 )
-            except Exception:
+            except Exception as e:
                 session.rollback()
+                return e
     
-    async def insert_registration(self, login: str, password: str):
+    async def insert_registration(self, login: str, password: str) -> bool | Exception:
+        """Создает запись в таблице registratioons. 
+
+        Args:
+            login (str): логин.
+            password (str): пароль.
+
+        Returns:
+            bool | Exception: успешно | неуспешно.
+        """        
         with Session(self.engine) as session:
             new_registration = Registration()
             new_registration.login = login
@@ -86,16 +101,25 @@ class PostgresApi:
             session.add(new_registration)
             try:
                 session.commit()
-            except Exception:
+                return True
+            except Exception as e:
                 session.rollback()
+                return e
     
-    async def select_registration(self, login: str, password: str):
+    async def select_registration(self, login: str) -> models.RegistrationUser:
+        """Возвращает логин, пароль по совпадению "login".
+
+        Args:
+            login (str): логин.
+
+        Returns:
+            models.RegistrationUser: логин, пароль.
+        """        
         with Session(self.engine) as session:
-            object = session.query(Registration).where(and_(Registration.login == login, Registration.password == password)).first()
-            return models.Template(
-                id=object.id,
-                filename=object.name,
-                url=object.url
+            object = session.query(Registration).where(Registration.login == login).first()
+            return models.RegistrationUser(
+                login=object.login,
+                password=object.password
             )
 
 db = PostgresApi('postgresql://postgres:admin@localhost:5432/postgres')

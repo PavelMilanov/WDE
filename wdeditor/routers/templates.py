@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, UploadFile, status, Path, Depends
+from fastapi import APIRouter, UploadFile, Response, Path, Depends
 from fastapi.responses import FileResponse
 from services.fileeditor import FileEditor
 from services.database import db
@@ -14,20 +14,27 @@ router = APIRouter(
 
 
 @router.post("/upload")
-async def upload_template_file(file: UploadFile, token: str = Depends(auth_scheme))-> status:
+async def upload_template_file(file: UploadFile, token: str = Depends(auth_scheme))-> Response:
     """Загрузка файла на сервер.
 
     Args:
         file (UploadFile): fastapi.UploadFile (файл пользователя).
 
     Returns:
-        status: успешно - 201, файл уже существует - 402.
+        Responce: 201, 402.
     """      
     file, url = await FileEditor.upload_file(filename=file.filename, content=file.file)
     if file and url:
-        await db.insert_template(file, url)
-        return status.HTTP_201_CREATED
-    return status.HTTP_402_PAYMENT_REQUIRED
+        if await db.insert_template(file, url):
+            return Response(
+                content='Шаблон добавлен',
+                status_code=201
+            )
+        else:
+            return Response(
+                content='Шаблон уже существует',
+                status_code=402
+            )
     
 @router.post('/download/{id}')
 async def download_template(
@@ -46,7 +53,8 @@ async def download_template(
     return FileResponse(
         path=model.url,
         filename='template.docx',
-        media_type='application/octet-stream'
+        media_type='application/octet-stream',
+        status_code=201
     )
 
 @router.get('/')
@@ -84,15 +92,29 @@ async def get_template(
 async def delete_template(
     id: int = Path(default=1, alias='Id Template', description='Id Template', example='/delete/1'),
     token: str = Depends(auth_scheme)
-    ) -> int:
+    ) -> Response:
     """Удаляет шаблон.
 
     Args:
         id (int): id шаблона.
 
     Returns:
-        int: успешно - if шаблона, не успешно - 403 статус.
+        int: 202, 402.
     """    
     model = await db.delete_template(id)
-    err = await FileEditor.delete_file(model.url)
-    return model.id if not err else status.HTTP_403_FORBIDDEN
+    if not isinstance(model, Exception):
+        err = await FileEditor.delete_file(model.url)
+        if not err:
+            return Response(
+            content='Шаблон удален успешно',
+            status_code=202
+        )
+        else:
+            return Response(
+            content='Ошибка при удалении шаблона',
+            status_code=402
+        )
+    return Response(
+        content='Ошибка при удалении шаблона в базе данных',
+        status_code=402
+    )

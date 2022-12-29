@@ -28,5 +28,6 @@ async def action_to_document(
         return FileResponse(
         path=f'tmp/{file}',
         filename='autogenerate_document.docx',
-        media_type='application/octet-stream'
+        media_type='application/octet-stream',
+        status_code=200
     )
