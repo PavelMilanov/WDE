@@ -1,9 +1,10 @@
 from typing import List
-from fastapi import APIRouter, UploadFile, status, Path
+from fastapi import APIRouter, UploadFile, status, Path, Depends
 from fastapi.responses import FileResponse
 from services.fileeditor import FileEditor
 from services.database import db
 from models.models import TemplateContext, Template
+from .auth import auth_scheme
 
 
 router = APIRouter(
@@ -13,7 +14,7 @@ router = APIRouter(
 
 
 @router.post("/upload")
-async def upload_template_file(file: UploadFile) -> status:
+async def upload_template_file(file: UploadFile, token: str = Depends(auth_scheme))-> status:
     """Загрузка файла на сервер.
 
     Args:
@@ -29,7 +30,10 @@ async def upload_template_file(file: UploadFile) -> status:
     return status.HTTP_402_PAYMENT_REQUIRED
     
 @router.post('/download/{id}')
-async def download_template(id: int = Path(default=1, alias='Id Template', description='Id Template', example='/download/1'))-> FileResponse:
+async def download_template(
+    id: int = Path(default=1, alias='Id Template', description='Id Template', example='/download/1'),
+    token: str = Depends(auth_scheme)
+    )-> FileResponse:
     """Выгрузка файла пользователю.
 
     Args:
@@ -46,7 +50,7 @@ async def download_template(id: int = Path(default=1, alias='Id Template', descr
     )
 
 @router.get('/')
-async def get_templates() -> List[Template]:
+async def get_templates(token: str = Depends(auth_scheme)) -> List[Template]:
     """Возвращает все шаблоны.
 
     Returns:
@@ -55,7 +59,10 @@ async def get_templates() -> List[Template]:
     return await db.get_templates()
 
 @router.get('/{id}')
-async def get_template(id: int = Path(default=1, description='Id Template', example='1')) -> TemplateContext:
+async def get_template(
+    id: int = Path(default=1, description='Id Template', example='1'),
+    token: str = Depends(auth_scheme)
+    ) -> TemplateContext:
     """Возвращает шаблон с тегами, которые изменяются.
 
     Args:
@@ -74,7 +81,10 @@ async def get_template(id: int = Path(default=1, description='Id Template', exam
     )
 
 @router.delete('/{id}')
-async def delete_template(id: int = Path(default=1, alias='Id Template', description='Id Template', example='/delete/1')) -> int:
+async def delete_template(
+    id: int = Path(default=1, alias='Id Template', description='Id Template', example='/delete/1'),
+    token: str = Depends(auth_scheme)
+    ) -> int:
     """Удаляет шаблон.
 
     Args:

@@ -1,8 +1,9 @@
 from typing import List
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import Session
 from schemas.postgres import *
 from models import models
+
 
 class PostgresApi:
 
@@ -76,5 +77,25 @@ class PostgresApi:
                 )
             except Exception:
                 session.rollback()
+    
+    async def insert_registration(self, login: str, password: str):
+        with Session(self.engine) as session:
+            new_registration = Registration()
+            new_registration.login = login
+            new_registration.password = password
+            session.add(new_registration)
+            try:
+                session.commit()
+            except Exception:
+                session.rollback()
+    
+    async def select_registration(self, login: str, password: str):
+        with Session(self.engine) as session:
+            object = session.query(Registration).where(and_(Registration.login == login, Registration.password == password)).first()
+            return models.Template(
+                id=object.id,
+                filename=object.name,
+                url=object.url
+            )
 
 db = PostgresApi('postgresql://postgres:admin@localhost:5432/postgres')
