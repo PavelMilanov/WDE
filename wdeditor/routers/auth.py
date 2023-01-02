@@ -27,7 +27,8 @@ async def register_user(registration_form: models.RegistrationUser = Body(embed=
 
 @router.post('/authentificate')
 async def authentificate_user(form: OAuth2PasswordRequestForm = Depends()):
-    if await auth.authentification_user(form.username, form.password):
-        return 'успешная авторизация'
+    token = await auth.authentification_user(form.username, form.password)
+    if token:
+        return token
     else:
         return 'авторизация не пройдена'

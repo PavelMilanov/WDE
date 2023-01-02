@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from schemas.postgres import *
 from models import models
+from datetime import date
 
 
 class PostgresApi:
@@ -113,13 +114,30 @@ class PostgresApi:
             login (str): логин.
 
         Returns:
-            models.RegistrationUser: логин, пароль.
+            models.RegistrationUser: id, логин, пароль.
         """        
         with Session(self.engine) as session:
             object = session.query(Registration).where(Registration.login == login).first()
             return models.RegistrationUser(
+                id=object.id,
                 login=object.login,
                 password=object.password
             )
+
+    async def insert_token(self, registrationid: int, token: str, expired_date: date):
+        with Session(self.engine) as session:
+            new_token = Token()
+            new_token.registration_id = registrationid
+            new_token.token = token
+            new_token.expire_of = expired_date
+            session.add(new_token)
+            try:
+                session.commit()
+                return True
+            except Exception as e:
+                session.rollback()
+                return e
+    
+    
 
 db = PostgresApi('postgresql://postgres:admin@localhost:5432/postgres')

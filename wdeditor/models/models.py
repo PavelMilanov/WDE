@@ -19,5 +19,6 @@ class CreateDocument(BaseModel):
 
 
 class RegistrationUser(BaseModel):
+    id: int | None
     login: str = Field(default='login', description='User login name.')
     password: str = Field(default='password', description='user password.')

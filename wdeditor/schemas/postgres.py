@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from sqlalchemy.orm import declarative_base, relationship
-
+ 
  
 Base = declarative_base()
 
@@ -19,7 +19,14 @@ class Registration(Base):
     id = Column(Integer, primary_key=True)
     login = Column(String(20), unique=True, nullable=False)
     password = Column(String(255), unique=True, nullable=False)
-    user = relationship('User',
+    user = relationship(
+        'User',
+        back_populates='registration',
+        cascade='all,delete',
+        passive_deletes=True
+        )
+    token = relationship(
+        'Token',
         back_populates='registration',
         cascade='all,delete',
         passive_deletes=True
@@ -39,3 +46,13 @@ class User(Base):
         )
 
 
+class Token(Base):
+    __tablename__ = 'tokens'
+
+    registration_id = Column(Integer, ForeignKey('registrations.id', ondelete='CASCADE'), primary_key=True)
+    token = Column(String(255), unique=True)
+    expire_of = Column(Date, nullable=False)
+    registration = relationship(
+        'Registration',
+        back_populates='token'
+        )
