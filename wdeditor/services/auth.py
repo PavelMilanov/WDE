@@ -16,12 +16,18 @@ class Authentification:
 
         Returns:
             bool: статус.
-        """        
-        hash_password = self.pwd_schema.hash(password)
-        if await db.insert_registration(login, hash_password):
-            return True
+        """
+        check_user = await db.select_registration(login)
+        if check_user:
+            return f'пользователь {check_user.login} уже существует'
+        else:          
+            hash_password = self.pwd_schema.hash(password)
+            if await db.insert_registration(login, hash_password):
+                return 'успешная регистрация'
+            else:
+                return 'что-то пошло нетак'
     
-    async def authentification_user(self, login: str, password: str) -> str| None:
+    async def authentification_user(self, login: str, password: str) -> str | None:
         model = await db.select_registration(login)
         if self.pwd_schema.verify(password, model.password):
             token = await self.__generate_token(model.id)

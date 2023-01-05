@@ -108,7 +108,7 @@ class PostgresApi:
                 return e
     
     async def select_registration(self, login: str) -> models.RegistrationUser:
-        """Возвращает логин, пароль по совпадению "login".
+        """Возвращает id, логин, пароль по совпадению "login".
 
         Args:
             login (str): логин.
