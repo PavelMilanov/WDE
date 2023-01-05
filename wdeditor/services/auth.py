@@ -3,6 +3,7 @@ from jose import jwt
 from .database import db
 from datetime import date, datetime
 
+
 class Authentification:
     
     pwd_schema = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -29,10 +30,14 @@ class Authentification:
     
     async def authentification_user(self, login: str, password: str) -> str | None:
         model = await db.select_registration(login)
-        if self.pwd_schema.verify(password, model.password):
-            token = await self.__generate_token(model.id)
-            return token
-
+        if model is not None:  # если запись о регистрации есть
+            if self.pwd_schema.verify(password, model.password):  # если прошла проверка, пробуем получить токен
+                token = await self.__get_token(model.id)
+                if token is None:  # если токена нет, создаем новый
+                    new_token = await self.__generate_token(model.id)
+                    return new_token
+                return token
+          
     async def __generate_token(self, registrationid: int):
         expired_date = await self.__expired_date()
         token = jwt.encode({'expired': str(expired_date), 'userid': str(registrationid)}, 'secret', algorithm='HS256')
@@ -41,6 +46,10 @@ class Authentification:
             return token
         else:
             print(check)
+    
+    async def __get_token(self, registrationid: int):
+        model = await db.select_token(registrationid)
+        return model.token
     
     async def __expired_date(self):
         current_date = datetime.now()

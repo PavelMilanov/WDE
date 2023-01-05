@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from services.fileeditor import FileEditor
 from services.database import db
 from models.models import TemplateContext, Template
-from .auth import auth_scheme
+from .auth import is_active_user
 
 
 router = APIRouter(
@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.post("/upload")
-async def upload_template_file(file: UploadFile, token: str = Depends(auth_scheme))-> Response:
+async def upload_template_file(file: UploadFile, token: str = Depends(is_active_user))-> Response:
     """Загрузка файла на сервер.
 
     Args:
@@ -39,7 +39,7 @@ async def upload_template_file(file: UploadFile, token: str = Depends(auth_schem
 @router.post('/download/{id}')
 async def download_template(
     id: int = Path(default=1, alias='Id Template', description='Id Template', example='/download/1'),
-    token: str = Depends(auth_scheme)
+    token: str = Depends(is_active_user)
     )-> FileResponse:
     """Выгрузка файла пользователю.
 
@@ -58,7 +58,7 @@ async def download_template(
     )
 
 @router.get('/')
-async def get_templates(token: str = Depends(auth_scheme)) -> List[Template]:
+async def get_templates(token: str = Depends(is_active_user)) -> List[Template]:
     """Возвращает все шаблоны.
 
     Returns:
@@ -69,7 +69,7 @@ async def get_templates(token: str = Depends(auth_scheme)) -> List[Template]:
 @router.get('/{id}')
 async def get_template(
     id: int = Path(default=1, description='Id Template', example='1'),
-    token: str = Depends(auth_scheme)
+    token: str = Depends(is_active_user)
     ) -> TemplateContext:
     """Возвращает шаблон с тегами, которые изменяются.
 
@@ -91,7 +91,7 @@ async def get_template(
 @router.delete('/{id}')
 async def delete_template(
     id: int = Path(default=1, alias='Id Template', description='Id Template', example='/delete/1'),
-    token: str = Depends(auth_scheme)
+    token: str = Depends(is_active_user)
     ) -> Response:
     """Удаляет шаблон.
 

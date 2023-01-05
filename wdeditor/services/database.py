@@ -118,11 +118,12 @@ class PostgresApi:
         """        
         with Session(self.engine) as session:
             object = session.query(Registration).where(Registration.login == login).first()
-            return models.RegistrationUser(
-                id=object.id,
-                login=object.login,
-                password=object.password
-            )
+            if object is not None:
+                return models.RegistrationUser(
+                    id=object.id,
+                    login=object.login,
+                    password=object.password
+                )
 
     async def insert_token(self, registrationid: int, token: str, expired_date: date):
         with Session(self.engine) as session:
@@ -138,6 +139,11 @@ class PostgresApi:
                 session.rollback()
                 return e
     
+    async def select_token(self, registrationid: int):
+        with Session(self.engine) as session:
+            object = session.query(Token.token).where(Token.registration_id == registrationid).first()
+            if object is not None:
+                return object
     
 
 db = PostgresApi('postgresql://postgres:admin@localhost:5432/postgres')

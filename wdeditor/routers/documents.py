@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Query, Path, Depends
 from fastapi.responses import FileResponse
 from services.fileeditor import FileEditor
 from models.models import  CreateDocument
-from .auth import auth_scheme
+from .auth import is_active_user
 
 
 router = APIRouter(
@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.post('/generate')
-async def generate_document(context: CreateDocument = Body(embed=True), token: str = Depends(auth_scheme)):
+async def generate_document(context: CreateDocument = Body(embed=True), token: str = Depends(is_active_user)):
     docuent = await FileEditor.generate_document_by_template(context)
     return docuent
 
@@ -20,7 +20,7 @@ async def generate_document(context: CreateDocument = Body(embed=True), token: s
 async def action_to_document(
     file: str = Path(title='Document name', description='Document name', example='31.12.12 12:00.docx', regex='^[0-9]{2}.[0-9]{2}.[0-9]{4} [0-9]{2}:[0-9]{2}.docx'), 
     action: str = Query(default='print', alias='action', title='Action to Document', description="Action to Document", example='print', regex='^print$|^save$'),
-    token: str = Depends(auth_scheme)
+    token: str = Depends(is_active_user)
     ):
     if action == 'print':
         return 'print document'

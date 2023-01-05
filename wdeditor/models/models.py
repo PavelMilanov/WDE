@@ -1,5 +1,6 @@
 from typing import List, Dict
 from pydantic import BaseModel, Field
+from datetime import date
 
 
 class Template(BaseModel):
@@ -22,3 +23,9 @@ class RegistrationUser(BaseModel):
     id: int | None
     login: str = Field(default='login', description='User login name.')
     password: str = Field(default='password', description='user password.')
+
+
+class Token(BaseModel):
+    registration_id: int
+    token: str
+    expired_date: date

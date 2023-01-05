@@ -12,6 +12,10 @@ router = APIRouter(
 auth_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/authentificate')
 
 
+async def is_active_user(token: str = Depends(auth_scheme)):
+    print('check')
+
+
 @router.post('/registration')
 async def register_user(registration_form: models.RegistrationUser = Body(embed=True)):
     registration = await auth.registration_user(registration_form.login, registration_form.password)
@@ -21,6 +25,13 @@ async def register_user(registration_form: models.RegistrationUser = Body(embed=
 async def authentificate_user(form: OAuth2PasswordRequestForm = Depends()):
     token = await auth.authentification_user(form.username, form.password)
     if token:
-        return token
+        return {
+            "access_token": token,
+            "token_type": "bearer"
+            }
     else:
         return 'авторизация не пройдена'
+
+@router.get('/me')
+async def test(token: str = Depends(is_active_user)):
+    return 'hello world'
