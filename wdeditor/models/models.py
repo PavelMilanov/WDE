@@ -25,7 +25,7 @@ class RegistrationUser(BaseModel):
     password: str = Field(default='password', description='user password.')
 
 
-class Token(BaseModel):
+class GetToken(BaseModel):
     registration_id: int
     token: str
     expired_date: date

@@ -13,8 +13,7 @@ auth_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/authentificate')
 
 
 async def is_active_user(token: str = Depends(auth_scheme)):
-    print('check')
-
+    await auth.is_active_user(token)
 
 @router.post('/registration')
 async def register_user(registration_form: models.RegistrationUser = Body(embed=True)):

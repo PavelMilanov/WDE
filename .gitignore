@@ -4,3 +4,4 @@ tmp/
 __pycache__
 poetry.lock
 .DS_Store
+.ruff_cache

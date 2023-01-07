@@ -38,7 +38,11 @@ async def upload_template_file(file: UploadFile, token: str = Depends(is_active_
     
 @router.post('/download/{id}')
 async def download_template(
-    id: int = Path(default=1, alias='Id Template', description='Id Template', example='/download/1'),
+    id: int = Path(
+        default=1,
+        alias='Id Template',
+        description='Id Template',
+        example='/download/1'),
     token: str = Depends(is_active_user)
     )-> FileResponse:
     """Выгрузка файла пользователю.

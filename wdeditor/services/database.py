@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from schemas.postgres import *
+from schemas import postgres
 from models import models
 from datetime import date
 
@@ -24,7 +24,7 @@ class PostgresApi:
             bool | Exception: успешно | неуспешно.
         """        
         with Session(self.engine) as session:
-            new_template = Template()
+            new_template = postgres.Template()
             new_template.name = filename
             new_template.url = url
             session.add(new_template)
@@ -35,14 +35,14 @@ class PostgresApi:
                 session.rollback()
                 return e
 
-    async def get_templates(self) -> List[Template]:
+    async def get_templates(self) -> List[postgres.Template]:
         """Возвращает список всех шаблонов.
 
         Returns:
             List[Template]: список моделей Template.
         """        
         with Session(self.engine) as session:
-            object = session.query(Template).all()
+            object = session.query(postgres.Template).all()
         return object
 
     async def get_template(self, id: int) -> models.Template:
@@ -55,7 +55,7 @@ class PostgresApi:
             models.Template: модель Template.
         """        
         with Session(self.engine) as session:
-            object = session.query(Template).where(Template.id == id).first()
+            object = session.query(postgres.Template).where(postgres.Template.id == id).first()  # noqa: E501
             return models.Template(
                 id=object.id,
                 filename=object.name,
@@ -72,7 +72,7 @@ class PostgresApi:
             models.Template | Exception: успешно | неуспешно.
         """        
         with Session(self.engine) as session:
-            object = session.query(Template).where(Template.id == id).first()
+            object = session.query(postgres.Template).where(postgres.Template.id == id).first()  # noqa: E501
             session.delete(object)
             try:
                 session.commit()
@@ -96,7 +96,7 @@ class PostgresApi:
             bool | Exception: успешно | неуспешно.
         """        
         with Session(self.engine) as session:
-            new_registration = Registration()
+            new_registration = postgres.Registration()
             new_registration.login = login
             new_registration.password = password
             session.add(new_registration)
@@ -117,7 +117,7 @@ class PostgresApi:
             models.RegistrationUser: id, логин, пароль.
         """        
         with Session(self.engine) as session:
-            object = session.query(Registration).where(Registration.login == login).first()
+            object = session.query(postgres.Registration).where(postgres.Registration.login == login).first()  # noqa: E501
             if object is not None:
                 return models.RegistrationUser(
                     id=object.id,
@@ -127,7 +127,7 @@ class PostgresApi:
 
     async def insert_token(self, registrationid: int, token: str, expired_date: date):
         with Session(self.engine) as session:
-            new_token = Token()
+            new_token = postgres.Token()
             new_token.registration_id = registrationid
             new_token.token = token
             new_token.expire_of = expired_date
@@ -141,9 +141,23 @@ class PostgresApi:
     
     async def select_token(self, registrationid: int):
         with Session(self.engine) as session:
-            object = session.query(Token.token).where(Token.registration_id == registrationid).first()
+            object = session.query(postgres.Token).where(postgres.Token.registration_id == registrationid).first()  # noqa: E501
             if object is not None:
-                return object
+                return models.GetToken(
+                    registration_id=object.registration_id,
+                    token=object.token,
+                    expired_date=object.expire_of
+                )
     
+    async def delete_token(self, registrationid: int):
+        with Session(self.engine) as session:
+            object = session.query(postgres.Token).where(postgres.Token.registration_id == registrationid).first()  # noqa: E501
+            session.delete(object)
+            try:
+                session.commit()
+                return True
+            except Exception as e:
+                session.rollback()
+                return e
 
 db = PostgresApi('postgresql://postgres:admin@localhost:5432/postgres')

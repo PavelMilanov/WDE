@@ -49,7 +49,7 @@ class User(Base):
 class Token(Base):
     __tablename__ = 'tokens'
 
-    registration_id = Column(Integer, ForeignKey('registrations.id', ondelete='CASCADE'), primary_key=True)
+    registration_id = Column(Integer, ForeignKey('registrations.id', ondelete='CASCADE'), primary_key=True)  # noqa: E501
     token = Column(String(255), unique=True)
     expire_of = Column(Date, nullable=False)
     registration = relationship(

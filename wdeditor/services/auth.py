@@ -1,12 +1,15 @@
 from passlib.context import CryptContext
 from jose import jwt
 from .database import db
-from datetime import date, datetime
+from datetime import date
+from typing import Final
 
 
 class Authentification:
     
     pwd_schema = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    ALGORITHM: Final = 'HS256'
+    SECRET: Final = 'secret'
 
     async def registration_user(self, login: str, password: str) -> bool:
         """Функция регистрации пользователя по логину и паролю.
@@ -36,11 +39,17 @@ class Authentification:
                 if token is None:  # если токена нет, создаем новый
                     new_token = await self.__generate_token(model.id)
                     return new_token
-                return token
-          
+                return token.token
+    
+    async def is_active_user(self, token):
+        d_token = jwt.decode(token, self.SECRET, algorithms=[self.ALGORITHM])
+        model = await self.__get_token(int(d_token['userid']))
+        if model.expired_date < date.today():
+            await db.delete_token(model.registration_id)
+             
     async def __generate_token(self, registrationid: int):
         expired_date = await self.__expired_date()
-        token = jwt.encode({'expired': str(expired_date), 'userid': str(registrationid)}, 'secret', algorithm='HS256')
+        token = jwt.encode({'userid': str(registrationid)}, self.SECRET, algorithm=self.ALGORITHM)
         check = await db.insert_token(registrationid, token, expired_date)
         if not isinstance(check, Exception): 
             return token
@@ -49,10 +58,10 @@ class Authentification:
     
     async def __get_token(self, registrationid: int):
         model = await db.select_token(registrationid)
-        return model.token
+        return model
     
     async def __expired_date(self):
-        current_date = datetime.now()
+        current_date = date.today()
         return date(current_date.year, current_date.month, current_date.day+2)
     
 

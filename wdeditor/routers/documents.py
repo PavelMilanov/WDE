@@ -12,14 +12,27 @@ router = APIRouter(
 
 
 @router.post('/generate')
-async def generate_document(context: CreateDocument = Body(embed=True), token: str = Depends(is_active_user)):
+async def generate_document(
+    context: CreateDocument = Body(embed=True),
+    token: str = Depends(is_active_user)
+    ):
     docuent = await FileEditor.generate_document_by_template(context)
     return docuent
 
 @router.post('/{file}')
 async def action_to_document(
-    file: str = Path(title='Document name', description='Document name', example='31.12.12 12:00.docx', regex='^[0-9]{2}.[0-9]{2}.[0-9]{4} [0-9]{2}:[0-9]{2}.docx'), 
-    action: str = Query(default='print', alias='action', title='Action to Document', description="Action to Document", example='print', regex='^print$|^save$'),
+    file: str = Path(
+        title='Document name',
+        description='Document name',
+        example='31.12.12 12:00.docx',
+        regex='^[0-9]{2}.[0-9]{2}.[0-9]{4} [0-9]{2}:[0-9]{2}.docx'), 
+    action: str = Query(
+        default='print', 
+        alias='action',
+        title='Action to Document',
+        description="Action to Document",
+        example='print',
+        regex='^print$|^save$'),
     token: str = Depends(is_active_user)
     ):
     if action == 'print':
