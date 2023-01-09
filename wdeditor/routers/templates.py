@@ -26,15 +26,10 @@ async def upload_template_file(file: UploadFile, token: str = Depends(is_active_
     file, url = await FileEditor.upload_file(filename=file.filename, content=file.file)
     if file and url:
         if await db.insert_template(file, url):
-            return Response(
-                content='Шаблон добавлен',
-                status_code=201
-            )
+            return 'Шаблон добавлен'
         else:
-            return Response(
-                content='Шаблон уже существует',
-                status_code=402
-            )
+            return 'Шаблон уже существует'
+
     
 @router.post('/download/{id}')
 async def download_template(
@@ -109,16 +104,7 @@ async def delete_template(
     if not isinstance(model, Exception):
         err = await FileEditor.delete_file(model.url)
         if not err:
-            return Response(
-            content='Шаблон удален успешно',
-            status_code=202
-        )
+            return 'Шаблон удален успешно'
         else:
-            return Response(
-            content='Ошибка при удалении шаблона',
-            status_code=402
-        )
-    return Response(
-        content='Ошибка при удалении шаблона в базе данных',
-        status_code=402
-    )
+            return 'Ошибка при удалении шаблона'
+    return 'Ошибка при удалении шаблона в базе данных'

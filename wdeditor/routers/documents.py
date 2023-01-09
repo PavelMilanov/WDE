@@ -24,8 +24,8 @@ async def action_to_document(
     file: str = Path(
         title='Document name',
         description='Document name',
-        example='31.12.12 12:00.docx',
-        regex='^[0-9]{2}.[0-9]{2}.[0-9]{4} [0-9]{2}:[0-9]{2}.docx'), 
+        example='31.12.23.docx',
+        regex='^[0-9]{2}.[0-9]{2}.[0-9]{4}.docx'), 
     action: str = Query(
         default='print', 
         alias='action',
@@ -33,7 +33,7 @@ async def action_to_document(
         description="Action to Document",
         example='print',
         regex='^print$|^save$'),
-    token: str = Depends(is_active_user)
+    token: str = Depends(is_active_user),
     ):
     if action == 'print':
         return 'print document'
