@@ -1,3 +1,4 @@
+import re
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from routers import templates, documents, auth
@@ -52,7 +53,14 @@ app.add_middleware(
 )
 
 @app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
+async def remove_tmp_file(request: Request, call_next):
     response = await call_next(request)
-    # 
+    url = request.headers.get('referer')
+    try:
+        search = re.search(r'.docx', url)
+        if search:
+            print(search)
+    except TypeError as e:
+        print(e)
+
     return response
