@@ -1,7 +1,12 @@
 .venv
+.env
 forms/
 tmp/
 __pycache__
 poetry.lock
 .DS_Store
 .ruff_cache
+
+web/.vscode/
+web/node_modules/
+web/dist/
