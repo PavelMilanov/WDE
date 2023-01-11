@@ -5,7 +5,7 @@ import HeaderMenu from  './components/HeaderMenu.vue'
 </script>
 
 <template>
-  <div class="container">
+  <div class="container-fluid">
     <div class="row">
       <HeaderMenu />
     </div>

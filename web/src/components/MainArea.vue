@@ -16,7 +16,5 @@ export default {
 </template>
 
 <style scoped>
-div {
-    min-height: 100%;
-}
+
 </style>
