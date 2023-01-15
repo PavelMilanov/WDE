@@ -1,11 +1,10 @@
 <script setup>
-import Auth from './components/auth/Auth.vue'
-
+import MainApp from './components/MainApp.vue'
 
 </script>
 
 <template>
-    <Auth />
+    <MainApp />
 </template>
 
 <style scoped>

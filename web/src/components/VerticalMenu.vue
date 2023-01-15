@@ -1,6 +1,6 @@
 <script>
 import { wdeStore } from '../stores/counter';
-import { mapStores } from 'pinia'
+
 
 export default {
   data() {
@@ -15,7 +15,7 @@ export default {
     <div class="p-2">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Регистрация</a>
+          <a class="nav-link active" aria-current="page" href="#">Личный кабинет</a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#">Шаблоны</a>

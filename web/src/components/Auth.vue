@@ -1,5 +1,5 @@
 <script>
-import { wdeStore } from '../../stores/counter'
+import { wdeStore } from '../stores/counter'
 
 export default {
     setup() {
