@@ -1,6 +1,12 @@
 <script>
+import { wdeStore } from '../stores/counter'
 
 export default {
+    setup() {
+        const store = wdeStore()
+
+        return { store }
+    },
     data() {
         return {
 

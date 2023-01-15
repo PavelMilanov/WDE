@@ -1,11 +1,8 @@
 <script>
+import { wdeStore } from '../stores/counter';
+import { mapStores } from 'pinia'
 
 export default {
-  setup() {
-    const store = useCounterStore()
-
-    return { store }
-  },
   data() {
     return {
 
