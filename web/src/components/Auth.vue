@@ -32,7 +32,7 @@ export default {
 </script>
 
 <template>
-    <div class="d-flex justify-content-center align-items-center bg-secondary bg-gradient auth">
+    <div class="d-flex justify-content-center align-items-center bg-secondary bg-gradient">
         <div v-if="authForm" class="bg-light shadow-lg rounded needs-validation">
             <div class="form-floating m-3">
                 <input v-model="login" type="text" class="form-control" id="floatingInput">
@@ -122,7 +122,7 @@ export default {
 </template>
 
 <style lang="less">
-.auth {
+.d-flex {
     height: 100vh;
 }
 

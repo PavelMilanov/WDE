@@ -30,6 +30,10 @@ export const wdeStore = defineStore('wdestore', {
       })
       this.user.isActive = true
       this.user.token = responseToken
+    },
+    SignOut() {
+      this.user.isActive = false
+      this.user.token = ''
     }
   }
 })
